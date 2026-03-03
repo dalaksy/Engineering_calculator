@@ -96,7 +96,7 @@ namespace EngineeringCalculator
             double lastResult = 0;
             bool isFirstRun = true;
 
-            Console.WriteLine("--- Инженерный Калькулятор 3.0 ---");
+            Console.WriteLine("Инженерный Калькулятор(Консольная версия)");
             Console.WriteLine("Введите 'info' для справки.");
 
             while (true)
@@ -117,6 +117,7 @@ namespace EngineeringCalculator
                         Console.WriteLine(" clear - Очистить историю в БД");
                         Console.WriteLine(" c     - Сбросить текущий результат");
                         Console.WriteLine(" exit  - Выход");
+                        Console.WriteLine(" тест коммита");
                         continue;
                     }
 
