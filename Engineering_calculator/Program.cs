@@ -118,7 +118,7 @@ namespace EngineeringCalculator
             double lastResult = 0;
             bool isFirstRun = true;
 
-            Console.WriteLine("Engineering Calculator (SQLite Version)");
+            Console.WriteLine("Engineering Calculator (Console)");
             Console.WriteLine("Type 'info' for help.");
 
             while (true)
