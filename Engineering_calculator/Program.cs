@@ -1,9 +1,10 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Data;
 using System.Globalization;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
-using Npgsql;
+using Microsoft.Data.Sqlite;
 
 namespace EngineeringCalculator
 {
@@ -20,20 +21,37 @@ namespace EngineeringCalculator
 
     public class DatabaseWork
     {
-        private string connectionString = "Host=localhost;Username=postgres;Password=password1234admin;Database=my_project";
+        private string connectionString = "Data Source=calculator.db";
+
+        public void InitDatabase()
+        {
+            using (var connection = new SqliteConnection(connectionString))
+            {
+                connection.Open();
+                string sql = @"CREATE TABLE IF NOT EXISTS history (
+                                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                                expression TEXT,
+                                res REAL,
+                                dt DATETIME)";
+                using (var command = new SqliteCommand(sql, connection))
+                {
+                    command.ExecuteNonQuery();
+                }
+            }
+        }
 
         public async Task SaveToDatabase(string expression, double result)
         {
             try
             {
-                using (var connection = new NpgsqlConnection(connectionString))
+                using (var connection = new SqliteConnection(connectionString))
                 {
                     await connection.OpenAsync();
-                    string sql = "INSERT INTO history (expression, res, dt) VALUES (@exp, @r, CURRENT_TIMESTAMP)";
-                    using (var command = new NpgsqlCommand(sql, connection))
+                    string sql = "INSERT INTO history (expression, res, dt) VALUES (@exp, @r, datetime('now'))";
+                    using (var command = new SqliteCommand(sql, connection))
                     {
-                        command.Parameters.AddWithValue("exp", expression);
-                        command.Parameters.AddWithValue("r", double.IsInfinity(result) || double.IsNaN(result) ? 0 : result);
+                        command.Parameters.AddWithValue("@exp", expression);
+                        command.Parameters.AddWithValue("@r", double.IsInfinity(result) || double.IsNaN(result) ? 0 : result);
                         await command.ExecuteNonQueryAsync();
                     }
                 }
@@ -45,18 +63,21 @@ namespace EngineeringCalculator
         {
             try
             {
-                using (var connection = new NpgsqlConnection(connectionString))
+                using (var connection = new SqliteConnection(connectionString))
                 {
                     await connection.OpenAsync();
                     string sql = "SELECT expression, res, dt FROM history ORDER BY dt ASC";
-                    using (var command = new NpgsqlCommand(sql, connection))
+                    using (var command = new SqliteCommand(sql, connection))
                     {
                         using (var reader = await command.ExecuteReaderAsync())
                         {
                             Console.WriteLine("\n--- CALCULATION HISTORY ---");
                             while (await reader.ReadAsync())
                             {
-                                Console.WriteLine($"{reader.GetDateTime(2):HH:mm:ss} | {reader.GetString(0)} = {reader.GetDouble(1)}");
+                                string date = reader.GetString(2);
+                                string exp = reader.GetString(0);
+                                double res = reader.GetDouble(1);
+                                Console.WriteLine($"{date} | {exp} = {res}");
                             }
                             Console.WriteLine("---------------------------\n");
                         }
@@ -70,11 +91,10 @@ namespace EngineeringCalculator
         {
             try
             {
-                using (var connection = new NpgsqlConnection(connectionString))
+                using (var connection = new SqliteConnection(connectionString))
                 {
                     await connection.OpenAsync();
-                    string sql = "DELETE FROM history";
-                    using (var command = new NpgsqlCommand(sql, connection))
+                    using (var command = new SqliteCommand("DELETE FROM history", connection))
                     {
                         await command.ExecuteNonQueryAsync();
                     }
@@ -93,10 +113,12 @@ namespace EngineeringCalculator
             DataTable dt = new DataTable();
             Calculator calc = new Calculator();
 
+            db.InitDatabase();
+
             double lastResult = 0;
             bool isFirstRun = true;
 
-            Console.WriteLine("Engineering Calculator (Console Version)");
+            Console.WriteLine("Engineering Calculator (SQLite Version)");
             Console.WriteLine("Type 'info' for help.");
 
             while (true)
