@@ -53,17 +53,17 @@ namespace EngineeringCalculator
                     {
                         using (var reader = await command.ExecuteReaderAsync())
                         {
-                            Console.WriteLine("\n--- ИСТОРИЯ ---");
+                            Console.WriteLine("\n--- CALCULATION HISTORY ---");
                             while (await reader.ReadAsync())
                             {
                                 Console.WriteLine($"{reader.GetDateTime(2):HH:mm:ss} | {reader.GetString(0)} = {reader.GetDouble(1)}");
                             }
-                            Console.WriteLine("---------------\n");
+                            Console.WriteLine("---------------------------\n");
                         }
                     }
                 }
             }
-            catch (Exception ex) { Console.WriteLine("Ошибка чтения истории: " + ex.Message); }
+            catch (Exception ex) { Console.WriteLine("Error reading history: " + ex.Message); }
         }
 
         public async Task ClearHistoryAsync()
@@ -78,10 +78,10 @@ namespace EngineeringCalculator
                     {
                         await command.ExecuteNonQueryAsync();
                     }
-                    Console.WriteLine("История в базе данных очищена.");
+                    Console.WriteLine("Database history has been cleared.");
                 }
             }
-            catch (Exception ex) { Console.WriteLine("Ошибка очистки: " + ex.Message); }
+            catch (Exception ex) { Console.WriteLine("Error clearing history: " + ex.Message); }
         }
     }
 
@@ -96,14 +96,14 @@ namespace EngineeringCalculator
             double lastResult = 0;
             bool isFirstRun = true;
 
-            Console.WriteLine("Инженерный Калькулятор(Консольная версия)");
-            Console.WriteLine("Введите 'info' для справки.");
+            Console.WriteLine("Engineering Calculator (Console Version)");
+            Console.WriteLine("Type 'info' for help.");
 
             while (true)
             {
                 try
                 {
-                    Console.Write(isFirstRun ? "\nВведите выражение: " : $"\n[{lastResult}] Что дальше? ");
+                    Console.Write(isFirstRun ? "\nEnter expression: " : $"\n[{lastResult}] What's next? ");
                     string input = Console.ReadLine()?.Trim().ToLower();
 
                     if (string.IsNullOrEmpty(input)) continue;
@@ -111,13 +111,12 @@ namespace EngineeringCalculator
 
                     if (input == "info")
                     {
-                        Console.WriteLine("\nОПЕРАЦИИ: + , - , * , / , ( ) , abs() , sqrt() , pow(a,b)");
-                        Console.WriteLine("КОМАНДЫ:");
-                        Console.WriteLine(" hstr  - Показать историю");
-                        Console.WriteLine(" clear - Очистить историю в БД");
-                        Console.WriteLine(" c     - Сбросить текущий результат");
-                        Console.WriteLine(" exit  - Выход");
-                        Console.WriteLine(" тест коммита");
+                        Console.WriteLine("\nOPERATIONS: + , - , * , / , ( ) , abs() , sqrt() , pow(a,b)");
+                        Console.WriteLine("COMMANDS:");
+                        Console.WriteLine(" hstr  - Show history");
+                        Console.WriteLine(" clear - Clear database history");
+                        Console.WriteLine(" c     - Reset current result");
+                        Console.WriteLine(" exit  - Exit program");
                         continue;
                     }
 
@@ -130,6 +129,7 @@ namespace EngineeringCalculator
                     {
                         expression = lastResult.ToString(CultureInfo.InvariantCulture) + input;
                     }
+
                     string processedExpression = ProcessMathFunctions(expression, calc, dt);
                     processedExpression = processedExpression.Replace(",", ".");
 
@@ -138,13 +138,13 @@ namespace EngineeringCalculator
 
                     if (double.IsInfinity(finalResult))
                     {
-                        Console.WriteLine("Ошибка: Слишком большое число");
+                        Console.WriteLine("Error: Number is too large");
                         lastResult = 0;
                         isFirstRun = true;
                     }
                     else if (double.IsNaN(finalResult))
                     {
-                        Console.WriteLine("Ошибка: Невозможно вычислить");
+                        Console.WriteLine("Error: Calculation impossible (NaN)");
                         lastResult = 0;
                         isFirstRun = true;
                     }
@@ -156,9 +156,9 @@ namespace EngineeringCalculator
                         isFirstRun = false;
                     }
                 }
-                catch (Exception ex)
+                catch (Exception)
                 {
-                    Console.WriteLine("Ошибка: Некорректный ввод или ошибка вычисления.");
+                    Console.WriteLine("Error: Invalid input or calculation error.");
                     isFirstRun = true;
                 }
             }
