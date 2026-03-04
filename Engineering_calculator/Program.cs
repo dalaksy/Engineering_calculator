@@ -119,7 +119,7 @@ namespace EngineeringCalculator
             bool isFirstRun = true;
 
             Console.WriteLine("Engineering Calculator (Console)");
-            Console.WriteLine("Type 'info' for help.");
+            Console.WriteLine("Type 'info' for help. Use 'i' to refer to the previous result.");
 
             while (true)
             {
@@ -134,6 +134,7 @@ namespace EngineeringCalculator
                     if (input == "info")
                     {
                         Console.WriteLine("\nOPERATIONS: + , - , * , / , ( ) , abs() , sqrt() , pow(a,b)");
+                        Console.WriteLine("VARIABLE: 'i' - result of the previous calculation");
                         Console.WriteLine("COMMANDS:");
                         Console.WriteLine(" hstr  - Show history");
                         Console.WriteLine(" clear - Clear database history");
@@ -147,6 +148,12 @@ namespace EngineeringCalculator
                     if (input == "c") { isFirstRun = true; lastResult = 0; continue; }
 
                     string expression = input;
+
+                    if (expression.Contains("i"))
+                    {
+                        expression = expression.Replace("i", lastResult.ToString(CultureInfo.InvariantCulture));
+                    }
+
                     if (!isFirstRun && (input.StartsWith("+") || input.StartsWith("-") || input.StartsWith("*") || input.StartsWith("/")))
                     {
                         expression = lastResult.ToString(CultureInfo.InvariantCulture) + input;
