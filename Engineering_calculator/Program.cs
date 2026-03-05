@@ -71,7 +71,7 @@ namespace EngineeringCalculator
                     {
                         using (var reader = await command.ExecuteReaderAsync())
                         {
-                            Console.WriteLine("\n--- CALCULATION HISTORY ---");
+                            Console.WriteLine("\n+--- CALCULATION HISTORY ---+");
                             while (await reader.ReadAsync())
                             {
                                 string date = reader.GetString(2);
@@ -79,7 +79,7 @@ namespace EngineeringCalculator
                                 double res = reader.GetDouble(1);
                                 Console.WriteLine($"{date} | {exp} = {res}");
                             }
-                            Console.WriteLine("---------------------------\n");
+                            Console.WriteLine("+---------------------------+\n");
                         }
                     }
                 }
