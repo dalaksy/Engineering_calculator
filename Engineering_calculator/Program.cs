@@ -17,6 +17,9 @@ namespace EngineeringCalculator
         public double Power(double a, double b) => Math.Pow(a, b);
         public double Sqrt(double a) => a >= 0 ? Math.Sqrt(a) : double.NaN;
         public double Abs(double a) => Math.Abs(a);
+        // Добавлено: десятичный и натуральный логарифмы
+        public double Log(double a) => a > 0 ? Math.Log10(a) : double.NaN;
+        public double Ln(double a) => a > 0 ? Math.Log(a) : double.NaN;
     }
 
     public class DatabaseWork
@@ -133,7 +136,8 @@ namespace EngineeringCalculator
 
                     if (input == "info")
                     {
-                        Console.WriteLine("\nOPERATIONS: + , - , * , / , ( ) , abs() , sqrt() , pow(a,b)");
+                        // Обновлено: добавлены log и ln
+                        Console.WriteLine("\nOPERATIONS: + , - , * , / , ( ) , abs() , sqrt() , pow(a,b) , log() , ln()");
                         Console.WriteLine("VARIABLE: 'i' - result of the previous calculation");
                         Console.WriteLine("COMMANDS:");
                         Console.WriteLine(" hstr  - Show history");
@@ -196,7 +200,7 @@ namespace EngineeringCalculator
         static string ProcessMathFunctions(string input, Calculator calc, DataTable dt)
         {
             string output = input;
-            while (Regex.IsMatch(output, @"(sqrt|abs|pow)\("))
+            while (Regex.IsMatch(output, @"(sqrt|abs|pow|log|ln)\("))
             {
                 output = Regex.Replace(output, @"pow\(([^(),]+),([^(),]+)\)", m => {
                     double a = Convert.ToDouble(dt.Compute(m.Groups[1].Value.Replace(",", "."), ""));
@@ -212,6 +216,16 @@ namespace EngineeringCalculator
                 output = Regex.Replace(output, @"abs\(([^()]+)\)", m => {
                     double val = Convert.ToDouble(dt.Compute(m.Groups[1].Value.Replace(",", "."), ""));
                     return calc.Abs(val).ToString(CultureInfo.InvariantCulture);
+                });
+
+                output = Regex.Replace(output, @"log\(([^()]+)\)", m => {
+                    double val = Convert.ToDouble(dt.Compute(m.Groups[1].Value.Replace(",", "."), ""));
+                    return calc.Log(val).ToString(CultureInfo.InvariantCulture);
+                });
+
+                output = Regex.Replace(output, @"ln\(([^()]+)\)", m => {
+                    double val = Convert.ToDouble(dt.Compute(m.Groups[1].Value.Replace(",", "."), ""));
+                    return calc.Ln(val).ToString(CultureInfo.InvariantCulture);
                 });
             }
             return output;
